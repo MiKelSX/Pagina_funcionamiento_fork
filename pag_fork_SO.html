@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizador de fork() - Sistemas Operativos</title>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #9ca3af;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 1px solid #374151;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, #2563eb, #7c3aed);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to right, #1d4ed8, #6d28d9);
+        }
+
+        .btn-orange {
+            background: #ea580c;
+            color: white;
+        }
+
+        .btn-orange:hover {
+            background: #c2410c;
+        }
+
+        .btn-orange.active {
+            background: #ea580c;
+        }
+
+        .btn-orange.inactive {
+            background: #374151;
+            color: #9ca3af;
+        }
+
+        .btn-yellow {
+            background: #ca8a04;
+            color: white;
+        }
+
+        .btn-yellow:hover {
+            background: #a16207;
+        }
+
+        .btn-yellow.active {
+            background: #ca8a04;
+        }
+
+        .btn-yellow.inactive {
+            background: #374151;
+            color: #9ca3af;
+        }
+
+        .btn-red {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-red:hover {
+            background: #b91c1c;
+        }
+
+        textarea {
+            width: 100%;
+            height: 300px;
+            background: #111827;
+            color: #d1d5db;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .error {
+            background: #7f1d1d;
+            border: 1px solid #dc2626;
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .terminal {
+            background: #000;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 600px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .terminal-line {
+            color: #22c55e;
+            margin-bottom: 4px;
+        }
+
+        .svg-container {
+            background: #111827;
+            border-radius: 8px;
+            padding: 16px;
+            max-height: 600px;
+            overflow: auto;
+        }
+
+        select {
+            background: #374151;
+            color: white;
+            border: 1px solid #4b5563;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .info-box {
+            background: #1e3a8a;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const ForkVisualizer = () => {
+            const [processes, setProcesses] = useState([]);
+            const [terminalOutput, setTerminalOutput] = useState([]);
+            const [language, setLanguage] = useState('cpp');
+            const [code, setCode] = useState('');
+            const [error, setError] = useState('');
+            const [draggingNode, setDraggingNode] = useState(null);
+            const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+            const [speed, setSpeed] = useState(1000);
+            const svgRef = useRef(null);
+
+            const defaultCppCode = `#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main() {
+    int i, j, k;
+    
+    for (i = 0; i < 3; i++) {
+        if (fork() == 0) {
+            if (i == 1) {
+                for (j = 0; j < 2; j++) {
+                    if (fork() == 0) {
+                        if (j == 1) {
+                            for (k = 0; k < 2; k++) {
+                                if (fork() != 0)
+                                    break;
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    
+    printf("PID: %d, PPID: %d\\n", getpid(), getppid());
+    return 0;
+}`;
+
+            const defaultPythonCode = `import os
+import sys
+
+def main():
+    for i in range(3):
+        pid = os.fork()
+        
+        if pid == 0:
+            if i == 1:
+                for j in range(2):
+                    pid_j = os.fork()
+                    
+                    if pid_j == 0:
+                        if j == 1:
+                            for k in range(2):
+                                pid_k = os.fork()
+                                
+                                if pid_k != 0:
+                                    break
+                        break
+            break
+    
+    print(f"PID: {os.getpid()}, PPID: {os.getppid()}")
+    sys.exit(0)
+
+if __name__ == "__main__":
+    main()`;
+
+            useEffect(() => {
+                setCode(language === 'cpp' ? defaultCppCode : defaultPythonCode);
+            }, [language]);
+
+            const parseCode = (sourceCode, lang) => {
+                const steps = [];
+                let pidCounter = 1;
+                
+                const iLoopMatch = lang === 'cpp' 
+                    ? sourceCode.match(/for\s*\(\s*i\s*=\s*0\s*;\s*i\s*<\s*(\d+)/)
+                    : sourceCode.match(/for\s+i\s+in\s+range\((\d+)\)/);
+                const jLoopMatch = lang === 'cpp'
+                    ? sourceCode.match(/for\s*\(\s*j\s*=\s*0\s*;\s*j\s*<\s*(\d+)/)
+                    : sourceCode.match(/for\s+j\s+in\s+range\((\d+)\)/);
+                const kLoopMatch = lang === 'cpp'
+                    ? sourceCode.match(/for\s*\(\s*k\s*=\s*0\s*;\s*k\s*<\s*(\d+)/)
+                    : sourceCode.match(/for\s+k\s+in\s+range\((\d+)\)/);
+                
+                if (!iLoopMatch) {
+                    throw new Error('No se encontró el bucle principal con variable i');
+                }
+
+                const iLimit = parseInt(iLoopMatch[1]);
+                const jLimit = jLoopMatch ? parseInt(jLoopMatch[1]) : 0;
+                const kLimit = kLoopMatch ? parseInt(kLoopMatch[1]) : 0;
+
+                const baseSpacing = 180;
+                const totalWidth = Math.max(iLimit * baseSpacing, 700);
+                const centerX = 450;
+
+                steps.push({
+                    pid: pidCounter++,
+                    ppid: 0,
+                    level: 0,
+                    i: 0,
+                    j: null,
+                    k: null,
+                    action: "Proceso inicial",
+                    isParent: true,
+                    x: centerX,
+                    y: 40
+                });
+
+                const iSpacing = totalWidth / (iLimit + 1);
+                const iPositions = [];
+                for (let i = 0; i < iLimit; i++) {
+                    iPositions.push(centerX - totalWidth / 2 + (i + 1) * iSpacing);
+                }
+
+                for (let i = 0; i < iLimit; i++) {
+                    const newPid = pidCounter++;
+                    steps.push({
+                        pid: newPid,
+                        ppid: 1,
+                        level: 1,
+                        i: i,
+                        j: null,
+                        k: null,
+                        action: `fork() en i=${i}`,
+                        isParent: false,
+                        x: iPositions[i],
+                        y: 160
+                    });
+
+                    if (i === 1 && jLimit > 0) {
+                        const parentPid = newPid;
+                        const parentX = iPositions[i];
+                        const jSpacing = 120;
+                        
+                        for (let j = 0; j < jLimit; j++) {
+                            const newPidJ = pidCounter++;
+                            const xOffset = (j - (jLimit - 1) / 2) * jSpacing;
+                            
+                            steps.push({
+                                pid: newPidJ,
+                                ppid: parentPid,
+                                level: 2,
+                                i: 1,
+                                j: j,
+                                k: null,
+                                action: `fork() en j=${j} desde PID ${parentPid}`,
+                                isParent: false,
+                                x: parentX + xOffset,
+                                y: 280
+                            });
+
+                            if (j === 1 && kLimit > 0) {
+                                let currentParent = newPidJ;
+                                let currentX = parentX + xOffset;
+                                
+                                for (let k = 0; k < kLimit; k++) {
+                                    const newPidK = pidCounter++;
+                                    steps.push({
+                                        pid: newPidK,
+                                        ppid: currentParent,
+                                        level: 3 + k,
+                                        i: 1,
+                                        j: 1,
+                                        k: k,
+                                        action: `fork() en k=${k} desde PID ${currentParent}`,
+                                        isParent: false,
+                                        x: currentX,
+                                        y: 400 + k * 120
+                                    });
+                                    currentParent = newPidK;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return steps;
+            };
+
+            const parseAndExecute = () => {
+                setError('');
+                setProcesses([]);
+                setTerminalOutput([]);
+
+                try {
+                    const executionSteps = parseCode(code, language);
+
+                    if (executionSteps.length === 0) {
+                        setError('No se detectaron llamadas fork() en el código');
+                        return;
+                    }
+
+                    simulateExecution(executionSteps);
+                    
+                } catch (err) {
+                    setError(`Error al analizar el código: ${err.message}`);
+                }
+            };
+
+            const simulateExecution = (steps) => {
+                let step = 0;
+                const interval = setInterval(() => {
+                    if (step < steps.length) {
+                        const currentStep = steps[step];
+                        setProcesses(prev => [...prev, currentStep]);
+                        
+                        const msg = `[Step ${step + 1}] PID ${currentStep.pid} (PPID: ${currentStep.ppid}) - ${currentStep.action}`;
+                        setTerminalOutput(prev => [...prev, msg]);
+                        
+                        step++;
+                    } else {
+                        clearInterval(interval);
+                        setTerminalOutput(prev => [...prev, `\n✓ Ejecución completada. Total: ${steps.length} procesos`]);
+                    }
+                }, speed);
+            };
+
+            const handleMouseDown = (e, proc) => {
+                e.preventDefault();
+                const svg = svgRef.current;
+                const rect = svg.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                setDraggingNode(proc.pid);
+                setDragOffset({
+                    x: mouseX - proc.x,
+                    y: mouseY - proc.y
+                });
+            };
+
+            const handleMouseMove = (e) => {
+                if (draggingNode === null) return;
+                
+                const svg = svgRef.current;
+                const rect = svg.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                setProcesses(prev => prev.map(proc => {
+                    if (proc.pid === draggingNode) {
+                        return {
+                            ...proc,
+                            x: mouseX - dragOffset.x,
+                            y: mouseY - dragOffset.y
+                        };
+                    }
+                    return proc;
+                }));
+            };
+
+            const handleMouseUp = () => {
+                setDraggingNode(null);
+            };
+
+            useEffect(() => {
+                if (draggingNode !== null) {
+                    const moveHandler = (e) => handleMouseMove(e);
+                    const upHandler = () => handleMouseUp();
+                    
+                    document.addEventListener('mousemove', moveHandler);
+                    document.addEventListener('mouseup', upHandler);
+                    
+                    return () => {
+                        document.removeEventListener('mousemove', moveHandler);
+                        document.removeEventListener('mouseup', upHandler);
+                    };
+                }
+            }, [draggingNode, dragOffset]);
+
+            const handleReset = () => {
+                setProcesses([]);
+                setTerminalOutput([]);
+                setError('');
+            };
+
+            const renderTreeWithArrows = () => {
+                const nodeWidth = 100;
+                const nodeHeight = 60;
+                
+                const maxX = Math.max(...processes.map(p => p.x), 900);
+                const minX = Math.min(...processes.map(p => p.x), 0);
+                const maxY = Math.max(...processes.map(p => p.y), 600);
+                const svgWidth = Math.max(maxX - minX + 300, 1000);
+                const svgHeight = Math.max(maxY + 150, 700);
+
+                return (
+                    <svg 
+                        ref={svgRef}
+                        width={svgWidth} 
+                        height={svgHeight}
+                        style={{ cursor: draggingNode ? 'grabbing' : 'default' }}
+                    >
+                        {processes.map(proc => {
+                            if (proc.ppid === 0) return null;
+                            const parent = processes.find(p => p.pid === proc.ppid);
+                            if (!parent) return null;
+
+                            const x1 = parent.x;
+                            const y1 = parent.y + nodeHeight / 2;
+                            const x2 = proc.x;
+                            const y2 = proc.y - nodeHeight / 2;
+
+                            return (
+                                <g key={`arrow-${proc.pid}`}>
+                                    <defs>
+                                        <marker
+                                            id={`arrowhead-${proc.pid}`}
+                                            markerWidth="10"
+                                            markerHeight="10"
+                                            refX="9"
+                                            refY="3"
+                                            orient="auto"
+                                        >
+                                            <polygon points="0 0, 10 3, 0 6" fill="#60a5fa" />
+                                        </marker>
+                                    </defs>
+                                    <line
+                                        x1={x1}
+                                        y1={y1}
+                                        x2={x2}
+                                        y2={y2}
+                                        stroke="#60a5fa"
+                                        strokeWidth="2"
+                                        markerEnd={`url(#arrowhead-${proc.pid})`}
+                                    />
+                                    <text
+                                        x={(x1 + x2) / 2 + 10}
+                                        y={(y1 + y2) / 2}
+                                        fill="#93c5fd"
+                                        fontSize="11"
+                                        fontWeight="bold"
+                                    >
+                                        fork()
+                                    </text>
+                                </g>
+                            );
+                        })}
+
+                        {processes.map(proc => (
+                            <g 
+                                key={proc.pid} 
+                                className="animate-fadeIn"
+                                onMouseDown={(e) => handleMouseDown(e, proc)}
+                                style={{ cursor: 'grab' }}
+                            >
+                                <rect
+                                    x={proc.x - nodeWidth / 2}
+                                    y={proc.y - nodeHeight / 2}
+                                    width={nodeWidth}
+                                    height={nodeHeight}
+                                    rx="8"
+                                    fill={proc.isParent ? '#e9d5ff' : '#dbeafe'}
+                                    stroke={proc.isParent ? '#a855f7' : '#3b82f6'}
+                                    strokeWidth="3"
+                                    opacity={draggingNode === proc.pid ? 0.8 : 1}
+                                />
+                                <text
+                                    x={proc.x}
+                                    y={proc.y - 8}
+                                    textAnchor="middle"
+                                    fontSize="14"
+                                    fontWeight="bold"
+                                    fill="#1f2937"
+                                    pointerEvents="none"
+                                >
+                                    PID: {proc.pid}
+                                </text>
+                                <text
+                                    x={proc.x}
+                                    y={proc.y + 8}
+                                    textAnchor="middle"
+                                    fontSize="11"
+                                    fill="#4b5563"
+                                    pointerEvents="none"
+                                >
+                                    PPID: {proc.ppid}
+                                </text>
+                                <text
+                                    x={proc.x}
+                                    y={proc.y + 22}
+                                    textAnchor="middle"
+                                    fontSize="10"
+                                    fill="#6b7280"
+                                    pointerEvents="none"
+                                >
+                                    {proc.i !== null && `i=${proc.i}`}
+                                    {proc.j !== null && ` j=${proc.j}`}
+                                    {proc.k !== null && ` k=${proc.k}`}
+                                </text>
+                            </g>
+                        ))}
+                    </svg>
+                );
+            };
+
+            return (
+                <div className="container">
+                    <h1 className="title">Visualizador Interactivo de fork()</h1>
+                    <p className="subtitle">Escribe tu código y visualiza la ejecución de procesos</p>
+
+                    <div className="card">
+                        <div className="card-header">
+                            <h2 className="card-title">
+                                <span>💻</span> Editor de Código
+                            </h2>
+                            <div className="btn-group">
+                                <button
+                                    onClick={() => setLanguage('cpp')}
+                                    className={language === 'cpp' ? 'btn-orange active' : 'btn-orange inactive'}
+                                >
+                                    C++
+                                </button>
+                                <button
+                                    onClick={() => setLanguage('python')}
+                                    className={language === 'python' ? 'btn-yellow active' : 'btn-yellow inactive'}
+                                >
+                                    Python
+                                </button>
+                            </div>
+                        </div>
+
+                        <textarea
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            spellCheck="false"
+                        />
+
+                        {error && (
+                            <div className="error">
+                                ⚠️ {error}
+                            </div>
+                        )}
+
+                        <button
+                            onClick={parseAndExecute}
+                            className="btn-primary"
+                            style={{ width: '100%', marginTop: '16px', justifyContent: 'center' }}
+                        >
+                            🚀 Analizar y Ejecutar
+                        </button>
+                    </div>
+
+                    {processes.length > 0 && (
+                        <>
+                            <div className="card">
+                                <div className="controls">
+                                    <div className="control-group">
+                                        <button onClick={handleReset} className="btn-red">
+                                            🔄 Reiniciar
+                                        </button>
+                                        <div className="info-box">
+                                            🖱️ Arrastra los nodos para reorganizar
+                                        </div>
+                                    </div>
+                                    <div className="control-group">
+                                        <label>Velocidad:</label>
+                                        <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
+                                            <option value={2000}>Lenta (2s)</option>
+                                            <option value={1000}>Normal (1s)</option>
+                                            <option value={500}>Rápida (0.5s)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid">
+                                <div className="card">
+                                    <h2 className="card-title">
+                                        <span>📊</span> Árbol de Procesos (Arrastrables)
+                                    </h2>
+                                    <div className="svg-container">
+                                        {renderTreeWithArrows()}
+                                    </div>
+                                </div>
+
+                                <div className="card">
+                                    <h2 className="card-title">
+                                        <span>💻</span> Salida del Terminal
+                                    </h2>
+                                    <div className="terminal">
+                                        {terminalOutput.map((line, idx) => (
+                                            <div key={idx} className="terminal-line">
+                                                {line}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.render(<ForkVisualizer />, document.getElementById('root'));
+    </script>
+</body>
+</html>
