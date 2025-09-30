@@ -1,4 +1,4 @@
-# Visualizador Interactivo de fork() — Sistemas Operativos
+# Visualizador Interactivo de fork() — Sistemas Operativos (Linux/UNIX)
 
 [![Ver la página en vivo](https://img.shields.io/badge/Página%20Interactiva-Acceder-2563eb?style=for-the-badge&logo=github)](https://MiKelSX.github.io/Pagina_funcionamiento_fork/pag_fork_SO.html)
 
@@ -6,7 +6,7 @@
 
 ## 🌟 Descripción General
 
-Esta página web interactiva está diseñada para visualizar cómo funciona la llamada al sistema `fork()` en los sistemas operativos, permitiendo comprender la creación y estructura de procesos de manera gráfica y dinámica. Ideal para estudiantes, docentes y cualquier persona interesada en entender el comportamiento de los procesos en C/C++ y Python.
+Esta página web interactiva está diseñada para visualizar cómo funciona la llamada al sistema `fork()` en sistemas operativos **UNIX/Linux**, permitiendo comprender la creación y estructura de procesos de manera gráfica y dinámica. Es ideal para estudiantes, docentes y cualquier persona interesada en entender el comportamiento de los procesos en C/C++ (para Linux/UNIX) y Python.
 
 Accede aquí:  
 ➡️ **[https://MiKelSX.github.io/Pagina_funcionamiento_fork/pag_fork_SO.html](https://MiKelSX.github.io/Pagina_funcionamiento_fork/pag_fork_SO.html)**
@@ -16,7 +16,7 @@ Accede aquí:
 ## 🧑‍💻 ¿Qué puedes hacer en la página?
 
 ### 1. **Escribir y Analizar Código**
-- Puedes seleccionar entre **C++** o **Python** y editar el código de ejemplo que utiliza `fork()` para crear procesos.
+- Puedes seleccionar entre **C++** (especialmente diseñado para sistemas operativos Linux/UNIX) y **Python** para experimentar con código que utiliza `fork()` para crear procesos.
 - Al pulsar "Analizar y Ejecutar", la página procesa el código y simula la creación de procesos según la lógica del código escrito.
 
 ### 2. **Visualización Gráfica del Árbol de Procesos**
@@ -41,7 +41,7 @@ Accede aquí:
 
 ## 🧰 ¿Qué incluye la herramienta?
 
-- **Editor de código**: Escribe o modifica código en C++ o Python con fork().
+- **Editor de código**: Escribe o modifica código en C++ (para Linux/UNIX) o Python con fork().
 - **Selección de lenguaje**: Cambia entre C++ y Python instantáneamente.
 - **Visualización interactiva SVG**: Árbol de procesos animado y arrastrable.
 - **Terminal virtual**: Ver la salida paso a paso como en un sistema operativo real.
@@ -52,15 +52,15 @@ Accede aquí:
 
 ## 🎯 Objetivo
 
-El objetivo es ayudar a comprender cómo se crean los procesos hijos y cómo se estructuran jerárquicamente en la memoria del sistema operativo, de manera **visual, práctica y divertida**.
+El objetivo es ayudar a comprender cómo se crean los procesos hijos y cómo se estructuran jerárquicamente en la memoria de un sistema operativo **Linux/UNIX**, de manera **visual, práctica y divertida**.
 
 ---
 
 ## ☑️ ¿A quién está dirigido?
 
-- Estudiantes de sistemas operativos y programación.
+- Estudiantes de sistemas operativos y programación en plataformas UNIX/Linux.
 - Docentes que buscan una herramienta visual para explicar conceptos de procesos y fork().
-- Curiosos/as que quieren experimentar con la creación de procesos en C++ y Python sin riesgos.
+- Curiosos/as que quieren experimentar con la creación de procesos en C++ (Linux/UNIX) y Python sin riesgos.
 
 ---
 
